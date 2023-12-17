@@ -1,0 +1,11 @@
+package com.example.material
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class MaterialApplication
+
+fun main(args: Array<String>) {
+	runApplication<MaterialApplication>(*args)
+}

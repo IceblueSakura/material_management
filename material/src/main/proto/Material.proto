@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.example.material;
+
+message Material {
+  string id = 1; // UUID is represented as a string in protobuf
+  string materialName = 2;
+  string description = 3;
+  string specification = 4;
+  string materialType = 5;
+  string unit = 6;
+  bool deleted = 7;
+}

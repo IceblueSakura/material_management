@@ -1,0 +1,7 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/material_management
+    username: material
+    password: material
+server:
+  port: 8080
