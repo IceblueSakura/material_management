@@ -18,5 +18,7 @@ class MaterialControllerTest(@Autowired private val webClient: WebTestClient) {
             .accept(MediaType.APPLICATION_PROTOBUF)
             .exchange()
             .expectStatus().isOk
+            .expectBody(String::class.java)
+            .consumeWith { println(it) }
     }
 }

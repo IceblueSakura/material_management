@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package com.example.material;
+
+// Provide to MaterialDetails-Batch
+message MaterialSupplier {
+  string id = 1;
+  string supplierName = 2;
+  string description = 3;
+  string contactInformation = 4;
+}

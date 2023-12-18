@@ -4,6 +4,8 @@
 
 ## 项目简介
 
+以后再补
+
 ### 概述
 
 物料管理平台是一款专注于优化和简化企业物料流程的软件解决方案。该平台致力于提升物料管理的效率，确保企业能够有效地追踪、采购、入库、出库和消耗各类物料。
@@ -103,31 +105,89 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 
 ### 数据库结构
 
-以下为数据库中**主要**Table(没写关系表等)，序号与微服务对应，重复的Table只描述一次(一个表可能被多个项目使用)
+以下为数据库中**主要**Table DDL(没写关系表等)
 
-1. user
-2. role
-3. permission
-4. material
+1. user 用户登录信息
+   ```postgresql
+      CREATE TABLE permission(
+          
+      )
+   ```
+2. user_info 用户详细信息
+   ```postgresql
+      CREATE TABLE permission(
+          
+      )
+   ```
+3. role 角色信息
+   ```postgresql
+      CREATE TABLE permission(
+          
+      )
+   ```
+4. permission 权限信息
+   ```postgresql
+      CREATE TABLE permission(
+          
+      )
+   ```
+5. material 物料信息
    ```postgresql
    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-   
-   CREATE TABLE materials (
+   CREATE TABLE material (
        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
        material_name TEXT NOT NULL,
-       description TEXT,
+       description TEXT NOT NULL,
        specification TEXT NOT NULL,
        material_type TEXT NOT NULL,
-       unit TEXT NOT NULL,
+       inventory INT NOT NULL,
        deleted BOOLEAN NOT NULL DEFAULT false,
        version BIGINT NOT NULL
    );
    
-   CREATE INDEX idx_materials_material_name on materials(material_name);
-   CREATE INDEX idx_materials_deleted on materials(deleted);
+   CREATE INDEX idx_material_material_name on material(material_name);
+   CREATE INDEX idx_material_deleted on material(deleted);
    ```
-5. material_supplier
-6.
+6. material_supplier 物料供应商
+   ```postgresql
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+   CREATE TABLE material_supplier (
+       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+       supplier_name TEXT NOT NULL,
+       description TEXT NOT NULL,
+       contact_info TEXT NOT NULL,
+       deleted BOOLEAN NOT NULL DEFAULT FALSE,
+       version BIGINT
+   );
+   ```
+7. material_batch 物料批次
+   ```postgresql
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+   CREATE TABLE material_batch
+   (
+       id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+       material_id UUID NOT NULL,
+       supplier_id UUID NOT NULL,
+       employee_id UUID NOT NULL,
+       description TEXT NOT NULL,
+       create_at   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
+   
+       FOREIGN KEY (material_id)
+           REFERENCES material (id)
+           ON DELETE CASCADE,
+   
+       FOREIGN KEY (supplier_id)
+           REFERENCES material_supplier (id)
+           ON DELETE CASCADE,
+
+       FOREIGN KEY (employee_id)
+           REFERENCES user_info (id)
+   );
+   
+   CREATE INDEX idx_material_batch_material_id ON material_batch (material_id);
+   CREATE INDEX idx_material_batch_supplier_id ON material_batch (supplier_id);   
+   CREATE INDEX idx_material_batch_create_at ON material_batch (create_at);   
+   ```
 
 ## 项目说明
 
@@ -159,3 +219,4 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 
 1. 记得配置k8s yml时配置service account,权限[get watch list]+[pods services]
 2. 使用istio配置负载均衡，而不是k8s/gateway
+3. Protobuf的空值处理(可能需要转换到kotlin data class，或者需要写入数据库)

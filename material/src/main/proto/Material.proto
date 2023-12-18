@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package com.example.material;
 
+// Summary information, used for lists
 message Material {
   string id = 1; // UUID is represented as a string in protobuf
   string materialName = 2;
@@ -9,5 +10,4 @@ message Material {
   string specification = 4;
   string materialType = 5;
   string unit = 6;
-  bool deleted = 7;
 }
