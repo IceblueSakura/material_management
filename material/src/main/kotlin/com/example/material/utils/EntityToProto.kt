@@ -10,7 +10,5 @@ fun Material.convertProto(): MaterialOuterClass.Material {
         .setDescription(this.description)
         .setSpecification(this.specification)
         .setMaterialType(this.materialType)
-        .setUnit(this.unit)
-        .setDeleted(this.deleted)
         .build()
 }

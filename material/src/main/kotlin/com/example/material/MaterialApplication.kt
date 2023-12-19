@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class MaterialApplication
 
 fun main(args: Array<String>) {
-	runApplication<MaterialApplication>(*args)
+    runApplication<MaterialApplication>(*args)
 }

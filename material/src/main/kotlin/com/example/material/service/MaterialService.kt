@@ -1,8 +1,9 @@
 package com.example.material.service
 
+import com.example.material.MaterialDetailsOuterClass
+import com.example.material.MaterialOuterClass
 import com.example.material.entity.Material
 import kotlinx.coroutines.flow.Flow
-import org.springframework.data.relational.core.query.Criteria
 import java.util.*
 
 interface MaterialService {
@@ -17,8 +18,8 @@ interface MaterialService {
      * @return True if the material `delete` column has been set to false, false otherwise.
      */
     suspend fun deleteMaterialById(id: UUID): Boolean
-    suspend fun updateMaterial(material: Material): Material?
-    suspend fun getMaterialById(id: UUID): Material?
+    suspend fun updateMaterial(material: Material): Material
+    suspend fun getMaterialById(id: UUID): Material
 
     /**
      * Retrieves materials based on the given criteria.
@@ -32,4 +33,27 @@ interface MaterialService {
      */
     suspend fun getMaterialByCriteria(criteriaMap: Map<String, String>): Flow<Material>
     suspend fun getAllMaterial(): Flow<Material>
+
+
+    /**
+     * Retrieves a list of materials. Provide to Controller.
+     *
+     * This function retrieves a list of materials by returning a [Flow] of [MaterialOuterClass.Material] objects. The materials are retrieved from the database and converted to protobuf
+     * format using the MaterialOuterClass.Material class.
+     *
+     * @return A [Flow] of [MaterialOuterClass.Material] objects representing the list of materials.
+     */
+    suspend fun getMaterialList(): Flow<MaterialOuterClass.Material>
+
+    /**
+     * Retrieves the details of a material based on its ID. Provide to Controller.
+     *
+     * This method retrieves the details of a material from the database based on its ID. The method returns an instance
+     * of [MaterialDetailsOuterClass.MaterialDetails] which contains information such as the material ID, name,
+     * description, specification, material type, and unit.
+     *
+     * @param id The ID of the material.
+     * @return An instance of [MaterialDetailsOuterClass.MaterialDetails] representing the details of the material.
+     */
+    suspend fun getMaterialDetailsById(id: UUID): MaterialDetailsOuterClass.MaterialDetails
 }

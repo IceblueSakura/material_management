@@ -1,21 +1,27 @@
 package com.example.material.service.impl
 
+import com.example.material.MaterialDetailsOuterClass
+import com.example.material.MaterialOuterClass
 import com.example.material.entity.Material
+import com.example.material.exception.CustomException
+import com.example.material.exception.ResourceNotFoundException
 import com.example.material.repository.MaterialRepository
+import com.example.material.service.BatchService
 import com.example.material.service.MaterialService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.stereotype.Service
-import java.util.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
+import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class MaterialServiceImpl(
     @Autowired private val materialRepository: MaterialRepository,
+    @Autowired private val batchService: BatchService,
     @Autowired private val r2dbcEntityTemplate: R2dbcEntityTemplate
 ) : MaterialService {
 
@@ -40,19 +46,24 @@ class MaterialServiceImpl(
         } else false
     }
 
-    override suspend fun updateMaterial(material: Material): Material? {
+    override suspend fun updateMaterial(material: Material): Material {
         val existingMaterial = materialRepository.findById(material.id!!)
         return if (existingMaterial != null) {
             try {
                 materialRepository.save(material.copy(id = existingMaterial.id)) // update material without id
             } catch (e: OptimisticLockingFailureException) {
-                null
+                throw CustomException(
+                    500,
+                    "Server Optimistic Locking Failure"
+                )  // convert to customException(probably meaningless)
             }
-        } else null
+        } else throw ResourceNotFoundException()
     }
 
-    override suspend fun getMaterialById(id: UUID): Material? {
-        return materialRepository.findByIdAndDeleted(id, false)   // only not deleted
+    override suspend fun getMaterialById(id: UUID): Material {
+        val material = materialRepository.findByIdAndDeleted(id, false)  // only not deleted
+            ?: throw ResourceNotFoundException()   // if material is null,throw custom exception.
+        return material
     }
 
     override suspend fun getMaterialByCriteria(criteriaMap: Map<String, String>): Flow<Material> {
@@ -66,5 +77,15 @@ class MaterialServiceImpl(
 
     override suspend fun getAllMaterial(): Flow<Material> {
         return materialRepository.findAllByDeleted(false)  // only not deleted
+    }
+
+    override suspend fun getMaterialList(): Flow<MaterialOuterClass.Material> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getMaterialDetailsById(id: UUID): MaterialDetailsOuterClass.MaterialDetails {
+        val material = getMaterialById(id)
+
+        TODO("Not yet implemented")
     }
 }

@@ -1,12 +1,9 @@
 package com.example.material.entity
 
-import com.example.material.MaterialOuterClass
-import org.jetbrains.annotations.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
-import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.util.UUID
+import java.util.*
 
 /**
  * Represents a material.

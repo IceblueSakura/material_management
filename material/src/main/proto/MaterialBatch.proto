@@ -1,6 +1,16 @@
 syntax = "proto3";
 
-// Provide to MaterialDetails
-message MaterialBatch{
+package com.example.material;
+import "google/protobuf/timestamp.proto";
 
+// Provide to MaterialDetails
+message MaterialBatch {
+  string id = 1;
+  string materialId = 2;
+  string supplierId = 3;
+  string employeeId = 4;
+  string description = 5;
+
+  // Timestamp is a well-known type in Protocol Buffers
+  google.protobuf.Timestamp createAt = 6;
 }

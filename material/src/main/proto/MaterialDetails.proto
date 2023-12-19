@@ -2,16 +2,21 @@ syntax = "proto3";
 
 package com.example.material;
 
-import "Material.proto";  //
+import "Material.proto";
 import "MaterialBatch.proto";
+import "MaterialSupplier.proto";
 
 message MaterialDetails{
   Material material = 1;
   message MaterialBatchSupplier{
-    string description = 1;
-    int64 createAt = 2;
-    string supplierName = 3;
-    string supplierId = 4;
+    MaterialBatch batch = 1;
+    MaterialSupplier supplier = 2;
   }
-  repeated MaterialBatchSupplier batch = 2;
+  //  message MaterialBatchSupplier{
+  //    string description = 1;
+  //    int64 createAt = 2;
+  //    string supplierName = 3;
+  //    string supplierId = 4;
+  //  }
+  repeated MaterialBatchSupplier batchSupplier = 2;
 }
