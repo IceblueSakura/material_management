@@ -1,0 +1,124 @@
+# Authorization
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authorization-debug
+  namespace: material-management
+spec:
+  containers:
+    - name: authorization-debug
+      image: openjdk:21-jdk
+      ports:
+        - name: auth-http
+          containerPort: 8080
+          protocol: TCP
+        - name: auth-debug
+          containerPort: 5005
+          protocol: TCP
+      env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authorization-debug-service
+  namespace: material-management
+spec:
+  selector:
+    name: authorization-debug
+  ports:
+    - port: 8080
+      targetPort: auth-http
+      protocol: TCP
+  type: ClusterIP
+
+
+## Client
+#---
+#apiVersion: v1
+#kind: Pod
+#metadata:
+#  name: client-debug
+#  namespace: material-management
+#spec:
+#  containers:
+#    - name: client-debug
+#      image: openjdk:21-jdk
+#      ports:
+#        - name: cli-http
+#          containerPort: 8080
+#          protocol: TCP
+#        - name: client-debug
+#          containerPort: 5006
+#          protocol: TCP
+#      env:
+#        - name: JAVA_TOOL_OPTIONS
+#          value: "-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: client-debug-service
+#  namespace: material-management
+#spec:
+#  selector:
+#    name: client-debug
+#  ports:
+#    - port: 8080
+#      targetPort: cli-http
+#      protocol: TCP
+#  type: ClusterIP
+
+# Istio Gateway
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: debug-gateway
+  namespace: material-management
+spec:
+  selector:
+    istio: ingressgateway  # use istio default controller
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: authorization-debug-vservice
+  namespace: material-management
+spec:
+  hosts:
+    - "auth.local"
+  gateways:
+    - auth-gateway
+  http:
+    - route:
+        - destination:
+            host: authorization-debug-service
+            port:
+              number: 8080
+#---
+#apiVersion: networking.istio.io/v1alpha3
+#kind: VirtualService
+#metadata:
+#  name: authorization-debug-vservice
+#  namespace: material-management
+#spec:
+#  hosts:
+#    - "client.local"
+#  gateways:
+#    - auth-gateway
+#  http:
+#    - route:
+#        - destination:
+#            host: client-debug-service
+#            port:
+#              number: 8080
