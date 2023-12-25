@@ -8,7 +8,12 @@ import com.example.material.exception.ResourceNotFoundException
 import com.example.material.repository.MaterialRepository
 import com.example.material.service.BatchService
 import com.example.material.service.MaterialService
+import com.example.material.service.SupplierService
+import com.example.material.utils.convertToProtobuf
+import com.example.material.utils.insertEntity
+import com.example.material.utils.updateEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
@@ -22,27 +27,18 @@ import java.util.*
 class MaterialServiceImpl(
     @Autowired private val materialRepository: MaterialRepository,
     @Autowired private val batchService: BatchService,
+    @Autowired private val supplierService: SupplierService,
     @Autowired private val r2dbcEntityTemplate: R2dbcEntityTemplate
 ) : MaterialService {
 
-    override suspend fun insertMaterial(material: Material): Boolean {
-        return try {
-            materialRepository.save(material.copy(id = null)) // auto generate UUID primary key
-            true
-        } catch (e: OptimisticLockingFailureException) {
-            false
-        }
+    override suspend fun insertMaterial(material: Material): UUID {
+        return insertEntity(materialRepository, material.copy(id = null))
     }
 
     override suspend fun deleteMaterialById(id: UUID): Boolean {
         val material = materialRepository.findById(id)
         return if (material != null) {
-            try {
-                materialRepository.save(material.copy(deleted = true)) // update existMaterial copy
-                true
-            } catch (e: OptimisticLockingFailureException) {
-                false
-            }
+            updateEntity(materialRepository, material.copy(deleted = true)) // update existMaterial copy
         } else false
     }
 
@@ -53,8 +49,7 @@ class MaterialServiceImpl(
                 materialRepository.save(material.copy(id = existingMaterial.id)) // update material without id
             } catch (e: OptimisticLockingFailureException) {
                 throw CustomException(
-                    500,
-                    "Server Optimistic Locking Failure"
+                    500, "Server Optimistic Locking Failure"
                 )  // convert to customException(probably meaningless)
             }
         } else throw ResourceNotFoundException()
@@ -80,12 +75,20 @@ class MaterialServiceImpl(
     }
 
     override suspend fun getMaterialList(): Flow<MaterialOuterClass.Material> {
-        TODO("Not yet implemented")
+        return getAllMaterial().map { it.convertToProtobuf() }  // non-blocking of convert~
     }
 
     override suspend fun getMaterialDetailsById(id: UUID): MaterialDetailsOuterClass.MaterialDetails {
         val material = getMaterialById(id)
 
-        TODO("Not yet implemented")
+        val materialDetails =
+            MaterialDetailsOuterClass.MaterialDetails.newBuilder().setMaterial(material.convertToProtobuf())
+
+        batchService.getBatchByMaterialId(material.id!!).collect {  // equal to use loop to read all batches
+            materialDetails.addBatchSupplierBuilder().setBatch(it.convertToProtobuf())
+                .setSupplier(supplierService.getSupplierById(it.supplierId).convertToProtobuf())
+        }
+
+        return materialDetails.build()
     }
 }

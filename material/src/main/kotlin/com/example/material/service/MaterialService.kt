@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 interface MaterialService {
-    suspend fun insertMaterial(material: Material): Boolean
+    suspend fun insertMaterial(material: Material): UUID
 
     /**
      * Deletes a material by its ID.
@@ -18,6 +18,16 @@ interface MaterialService {
      * @return True if the material `delete` column has been set to false, false otherwise.
      */
     suspend fun deleteMaterialById(id: UUID): Boolean
+
+    /**
+     * Updates a material in the database.Can't update id (is primary key).
+     *
+     * This method updates a material in the database based on the provided [Material] object. The material is updated with the new values for its properties, including material name
+     *, description, specification, material type, inventory, and version. The updated material is returned after the operation is completed.
+     *
+     * @param material The [Material] object representing the material to be updated.
+     * @return The updated [Material] object.
+     */
     suspend fun updateMaterial(material: Material): Material
     suspend fun getMaterialById(id: UUID): Material
 
@@ -28,10 +38,17 @@ interface MaterialService {
      * results.
      * The method returns a [Flow] of [Material] objects that match the specified criteria.
      *
-     * @param criteria The criteria used to filter the materials. It can include properties such as material name, material type, unit, etc.
+     * @param criteriaMap The criteria used to filter the materials. It can include properties such as material name, material type, unit, etc.
      * @return A [Flow] of [Material] objects that match the specified criteria.
      */
     suspend fun getMaterialByCriteria(criteriaMap: Map<String, String>): Flow<Material>
+    /**
+     * Retrieves all materials.
+     *
+     * This method retrieves all materials from the database and returns them as a flow of Material objects.
+     *
+     * @return A flow of Material objects representing all materials in the database.
+     */
     suspend fun getAllMaterial(): Flow<Material>
 
 

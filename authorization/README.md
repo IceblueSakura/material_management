@@ -1,0 +1,3 @@
+# 授权组件
+
+考虑使用JdbcRegisteredClientRepository 这样的方式实现用户信息的存储，重点在于能不能自动DDL

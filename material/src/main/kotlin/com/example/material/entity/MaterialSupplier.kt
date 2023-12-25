@@ -1,5 +1,6 @@
 package com.example.material.entity
 
+import com.example.material.utils.MyEntity
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Table
@@ -23,10 +24,10 @@ import java.util.*
  */
 @Table("material_supplier")
 data class MaterialSupplier(
-    @Id val id: UUID?,
+    @Id override val id: UUID?,
     val supplierName: String,
     val description: String,
     val contactInfo: String,
     val deleted: Boolean = false,
     @Version val version: Long
-)
+) : MyEntity<UUID>

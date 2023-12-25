@@ -2,7 +2,7 @@ package com.example.material.controller
 
 import com.example.material.MaterialOuterClass
 import com.example.material.service.MaterialService
-import com.example.material.utils.convertProto
+import com.example.material.utils.convertToProtobuf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +17,7 @@ class MaterialController(@Autowired private val materialService: MaterialService
     @GetMapping("", "/", produces = [MediaType.APPLICATION_PROTOBUF_VALUE])
     suspend fun getAll(): Flow<MaterialOuterClass.Material> {
         return materialService.getAllMaterial()
-            .map { it.convertProto() }  // ORM data class-> (map function)Class<? extend Protobuf Message> -> (spring)Convert and encode
+            .map { it.convertToProtobuf() }  // ORM data class-> (map function)Class<? extend Protobuf Message> -> (spring)Convert and encode
     }
 
 }
