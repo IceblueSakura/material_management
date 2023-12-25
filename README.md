@@ -16,7 +16,7 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 它以单点登录(SSO,Single sign-on)和基于角色的访问控制(RBAC,Role-base Access Control)
 的方式实现用户的权限划分与管理，相比较传统的权限管理模式，更加灵活、安全。通过集成单点登录(SSO)
 机制，用户能够以便捷的方式访问多个微服务，而基于角色的访问控制(RBAC)
-则确保了对系统资源的精准控制。相较传统权限管理，这种设计模式不仅提高了系统的整体安全性，还为用户提供了更加个性化和高效的权限管理体验。
+则确保了对系统资源的精准控制。相较传统权限管理，这种设计模式不仅提高了系统的整体安全性，还为用户提供了更加个性化和高效的权限管理体验。它的单点登录基于OAuth2.0实现，并支持OIDC用户信息接口
 
 ### 开发环境
 
@@ -69,23 +69,23 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 
 ### 组件功能划分：
 
-1. 网关服务：gateway
+1. 网关服务：gateway (dev port 8080)
     - 提供用户登录的跳转、验证。
     - 提供权限判断、路由到各个组件功能。
 2. 用户管理：user
     - 处理用户注册、登录、权限管理等功能。
     - 管理用户信息，如个人资料、权限信息等。
-3. 物料管理：material
+3. 物料管理：material  (dev port 8081)
     - 管理产品、物料及供应商信息。
     - 与日志系统结合，在信息变动时记录变动项及操作人。
 4. 库存服务：inventory
-    - 处理物料的采购、入库、出库等操作。
-    - 对当前/历史库存进行分析，记录。
+    - 处理物料的采购、入库、出库等操作(基于批次的)。
+    - 对当前/历史库存(基于日志的)进行分析、记录。
     - 与订单服务和物料管理服务集成，确保库存的准确性。
 5. 日志和监控服务：log
     - 处理系统日志记录和性能监控。
     - 提供集中式日志存储和监控功能。
-6. 认证与授权服务：authorization
+6. 认证与授权服务：authorization (dev port 9000)
     - 管理用户身份认证和访问授权。
     - 与其他服务集成，确保安全性。
 7. 订单服务：order
@@ -107,21 +107,21 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 
 以下为数据库中**主要**Table DDL(没写关系表等)
 
-1. user 用户登录信息
+1. user_login 用户登录信息
    ```postgresql
-      CREATE TABLE permission(
+      CREATE TABLE user_login(
           
       )
    ```
 2. user_info 用户详细信息
    ```postgresql
-      CREATE TABLE permission(
+      CREATE TABLE user_info(
           
       )
    ```
 3. role 角色信息
    ```postgresql
-      CREATE TABLE permission(
+      CREATE TABLE role(
           
       )
    ```
@@ -181,7 +181,7 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
            ON DELETE CASCADE,
 
        FOREIGN KEY (employee_id)
-           REFERENCES user_info (id)
+           REFERENCES user_profile (id)
    );
    
    CREATE INDEX idx_material_batch_material_id ON material_batch (material_id);
@@ -197,6 +197,13 @@ Spring 框架的优势，同时结合 Kotlin 语言的简洁性和协程的异�
 2. 数据删除不直接在数据库执行DELETE，而是字段deleted=true
 3. 可能的分布式部署，所以数据库entity加入了version字段以实现乐观锁(
    既：插入时如果version不符合查询时，插入失败。在插入成功后version++，防止同时插入出错)
+4. 对于API的数据交换，后端将主要以Protobuf的形式给前端返回数据(如：获取全部物料)，但前端仍以JSON形式向后端提交数据(
+   如：修改物料信息)，这么做是考虑对于服务器来说，上传带宽的使用程度可能远高于下载带宽，而且也能简化前端的代码编写。
+
+### 未完成/待改进的部分
+
+1. RBAC的角色继承问题(可以给role中添加extend字段，并一对多关联多个role，在删除父role时提示强制删除/错误等)
+2.
 
 ### 物料部分
 
