@@ -3,3 +3,7 @@ plugins {
 }
 rootProject.name = "material-management"
 
+include(":material")
+include(":inventory")
+include(":gateway")
+include(":authorization")
