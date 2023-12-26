@@ -26,3 +26,7 @@ Material为主，批次和库存为辅的结构，如果需要跨表查询，使
 MaterialController->MaterialService + BatchService + SupplierService ->some repository..
 BatchController->BatchService->MaterialBatchRepository
 SupplierController->SupplierService->SupplierRepository
+
+## 待补充
+
+1. 实体部分字段的unique属性，可以用数据库限制(但是需要额外的exception处理)

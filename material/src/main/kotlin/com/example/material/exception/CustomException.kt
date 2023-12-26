@@ -10,5 +10,5 @@ package com.example.material.exception
  *
  * @constructor Creates a new CustomException with the specified error code and message.
  */
-open class CustomException(private val errorCode: Int, message: String) : Exception(message) {
+open class CustomException(val errorCode: Int, message: String) : Exception(message) {
 }

@@ -1,9 +1,8 @@
 package com.example.material.service.impl
 
 import com.example.material.MaterialDetailsOuterClass
-import com.example.material.MaterialOuterClass
+import com.example.material.dto.MaterialDTO
 import com.example.material.entity.Material
-import com.example.material.exception.CustomException
 import com.example.material.exception.ResourceNotFoundException
 import com.example.material.repository.MaterialRepository
 import com.example.material.service.BatchService
@@ -13,14 +12,13 @@ import com.example.material.utils.convertToProtobuf
 import com.example.material.utils.insertEntity
 import com.example.material.utils.updateEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
@@ -30,11 +28,12 @@ class MaterialServiceImpl(
     @Autowired private val supplierService: SupplierService,
     @Autowired private val r2dbcEntityTemplate: R2dbcEntityTemplate
 ) : MaterialService {
-
+    @Transactional
     override suspend fun insertMaterial(material: Material): UUID {
-        return insertEntity(materialRepository, material.copy(id = null))
+        return insertEntity(materialRepository, material)
     }
 
+    @Transactional
     override suspend fun deleteMaterialById(id: UUID): Boolean {
         val material = materialRepository.findById(id)
         return if (material != null) {
@@ -42,17 +41,19 @@ class MaterialServiceImpl(
         } else false
     }
 
-    override suspend fun updateMaterial(material: Material): Material {
-        val existingMaterial = materialRepository.findById(material.id!!)
-        return if (existingMaterial != null) {
-            try {
-                materialRepository.save(material.copy(id = existingMaterial.id)) // update material without id
-            } catch (e: OptimisticLockingFailureException) {
-                throw CustomException(
-                    500, "Server Optimistic Locking Failure"
-                )  // convert to customException(probably meaningless)
-            }
-        } else throw ResourceNotFoundException()
+    @Transactional
+    override suspend fun updateMaterial(material: Material): Boolean {
+        return updateEntity(materialRepository, material)
+//        val existingMaterial = materialRepository.findById(material.id!!)
+//        return if (existingMaterial != null) {
+//            try {
+//                materialRepository.save(material.copy(id = existingMaterial.id)) // update material without id
+//            } catch (e: OptimisticLockingFailureException) {
+//                throw CustomException(
+//                    500, "Server Optimistic Locking Failure"
+//                )  // convert to customException(probably meaningless)
+//            }
+//        } else throw ResourceNotFoundException()
     }
 
     override suspend fun getMaterialById(id: UUID): Material {
@@ -74,9 +75,6 @@ class MaterialServiceImpl(
         return materialRepository.findAllByDeleted(false)  // only not deleted
     }
 
-    override suspend fun getMaterialList(): Flow<MaterialOuterClass.Material> {
-        return getAllMaterial().map { it.convertToProtobuf() }  // non-blocking of convert~
-    }
 
     override suspend fun getMaterialDetailsById(id: UUID): MaterialDetailsOuterClass.MaterialDetails {
         val material = getMaterialById(id)
@@ -90,5 +88,32 @@ class MaterialServiceImpl(
         }
 
         return materialDetails.build()
+    }
+
+    @Transactional
+    override suspend fun insertMaterialDTO(material: MaterialDTO): UUID {
+        return insertMaterial(
+            Material(
+                id = null,  // auto generate
+                materialName = material.materialName,
+                description = material.description,
+                materialType = material.materialType,
+                version = 0
+            )
+        )
+    }
+
+    @Transactional
+    override suspend fun updateMaterialDTO(material: MaterialDTO): Boolean {
+        val exist = materialRepository.findById(UUID.fromString(material.id))
+        return if (exist != null) {
+            updateMaterial(
+                exist.copy(
+                    materialName = material.materialName,
+                    description = material.description,
+                    materialType = material.materialType,
+                )
+            )
+        } else false
     }
 }

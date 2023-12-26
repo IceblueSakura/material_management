@@ -3,6 +3,7 @@ package com.example.material.utils
 import com.example.material.exception.CustomException
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Inserts an entity into the provided repository.
@@ -15,6 +16,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
  * @return The ID of the saved entity.
  * @throws CustomException If an error occurs during the save operation.
  */
+@Transactional
 suspend fun <T : MyEntity<ID>, ID> insertEntity(repository: CoroutineCrudRepository<T, ID>, entity: T): ID {
     return try {
         val save = repository.save(entity) // if you need auto generate UUID primary key,set id=null.
@@ -37,6 +39,7 @@ suspend fun <T : MyEntity<ID>, ID> insertEntity(repository: CoroutineCrudReposit
  * @param entity The entity to be updated. if delete, set deleted = true
  * @return `true` if the update is successful, `false` if an optimistic locking failure occurs.
  */
+@Transactional
 suspend fun <T : MyEntity<ID>, ID> updateEntity(repository: CoroutineCrudRepository<T, ID>, entity: T): Boolean {
     return try {
         repository.save(entity) // update existEntity copy

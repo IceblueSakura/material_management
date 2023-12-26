@@ -16,7 +16,7 @@ import java.util.*
  * Relation: Many-To-Many with [MaterialBatch]
  *
  * @property id The unique ID of the material supplier.
- * @property supplierName The name of the material supplier.
+ * @property supplierName The unique name of the material supplier.
  * @property description An optional description of the material supplier.
  * @property contactInfo The contact information of the material supplier.
  * @property deleted Whether the material supplier is deleted.
@@ -25,7 +25,7 @@ import java.util.*
 @Table("material_supplier")
 data class MaterialSupplier(
     @Id override val id: UUID?,
-    val supplierName: String,
+    val supplierName: String,  // unique
     val description: String,
     val contactInfo: String,
     val deleted: Boolean = false,

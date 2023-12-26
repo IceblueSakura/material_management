@@ -1,7 +1,7 @@
 package com.example.material.service
 
 import com.example.material.MaterialDetailsOuterClass
-import com.example.material.MaterialOuterClass
+import com.example.material.dto.MaterialDTO
 import com.example.material.entity.Material
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -26,9 +26,9 @@ interface MaterialService {
      *, description, specification, material type, inventory, and version. The updated material is returned after the operation is completed.
      *
      * @param material The [Material] object representing the material to be updated.
-     * @return The updated [Material] object.
+     * @return The updated status.
      */
-    suspend fun updateMaterial(material: Material): Material
+    suspend fun updateMaterial(material: Material): Boolean
     suspend fun getMaterialById(id: UUID): Material
 
     /**
@@ -42,6 +42,7 @@ interface MaterialService {
      * @return A [Flow] of [Material] objects that match the specified criteria.
      */
     suspend fun getMaterialByCriteria(criteriaMap: Map<String, String>): Flow<Material>
+
     /**
      * Retrieves all materials.
      *
@@ -51,16 +52,6 @@ interface MaterialService {
      */
     suspend fun getAllMaterial(): Flow<Material>
 
-
-    /**
-     * Retrieves a list of materials. Provide to Controller.
-     *
-     * This function retrieves a list of materials by returning a [Flow] of [MaterialOuterClass.Material] objects. The materials are retrieved from the database and converted to protobuf
-     * format using the MaterialOuterClass.Material class.
-     *
-     * @return A [Flow] of [MaterialOuterClass.Material] objects representing the list of materials.
-     */
-    suspend fun getMaterialList(): Flow<MaterialOuterClass.Material>
 
     /**
      * Retrieves the details of a material based on its ID. Provide to Controller.
@@ -73,4 +64,7 @@ interface MaterialService {
      * @return An instance of [MaterialDetailsOuterClass.MaterialDetails] representing the details of the material.
      */
     suspend fun getMaterialDetailsById(id: UUID): MaterialDetailsOuterClass.MaterialDetails
+
+    suspend fun insertMaterialDTO(material: MaterialDTO): UUID
+    suspend fun updateMaterialDTO(material: MaterialDTO): Boolean
 }

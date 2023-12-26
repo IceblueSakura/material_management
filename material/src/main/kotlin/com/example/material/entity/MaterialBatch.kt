@@ -2,6 +2,7 @@ package com.example.material.entity
 
 import com.example.material.utils.MyEntity
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Table
 import java.sql.Timestamp
 import java.util.*
@@ -29,5 +30,6 @@ data class MaterialBatch(
     val specification: String,
     val description: String,
     val createAt: Timestamp?,  // database auto-generate,must be not null
-    val deleted: Boolean = false
+    val deleted: Boolean = false,
+    @Version val version: Long
 ) : MyEntity<UUID>

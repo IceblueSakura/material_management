@@ -1,5 +1,6 @@
 package com.example.material.service
 
+import com.example.material.dto.MatchSupplierDTO
 import com.example.material.entity.MaterialSupplier
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -39,18 +40,6 @@ interface SupplierService {
      */
     suspend fun updateSupplier(supplier: MaterialSupplier): Boolean
 
-    /**
-     * Retrieves a material supplier based on their contact information.
-     *
-     * This method is used to retrieve a material supplier from the database
-     * based on their contact information. The contact information should be
-     * provided as a parameter. The method returns a flow of MaterialSupplier
-     * objects that match the given contact information.
-     *
-     * @param info The contact information of the material supplier.
-     * @return A flow of MaterialSupplier objects that match the given contact information.
-     */
-    suspend fun getSupplierByContactInfo(info: String): Flow<MaterialSupplier>
 
     /**
      * Retrieves material suppliers from the database based on a fuzzy match of their names.
@@ -65,4 +54,8 @@ interface SupplierService {
     suspend fun getSupplierByNameFuzzy(supplierName: String): Flow<MaterialSupplier>
     suspend fun getAllSupplier(): Flow<MaterialSupplier>
     suspend fun getSupplierById(id: UUID): MaterialSupplier
+
+    suspend fun insertSupplierDTO(supplierDTO: MatchSupplierDTO): UUID
+
+    suspend fun updateSupplierDTO(supplierDTO: MatchSupplierDTO): Boolean
 }
